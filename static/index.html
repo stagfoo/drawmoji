@@ -1,40 +1,85 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8">
-    <title>My Rust + Webpack aaa!</title>
-    <style>
-      body {
-        width: 100vw;
-        height: 100vh;
-        overflow: hidden;
-        position: absolute;
-        top: 0;
-        left: 0;
-      }
-      canvas {
-        display:block;
-      }
-        .color {
-            display: inline-block;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            cursor: pointer;
-            margin: 10px;
-        }
-        .size {
-          background: #efefef;
-            display: inline-block;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            cursor: pointer;
-            margin: 10px;
-        }
-    </style>
-  </head>
-  <body>
-    <script src="index.js"></script>
-  </body>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>My Rust + Webpack aaa!</title>
+  <style>
+    body,html {
+      width: 100vw;
+      max-width: 640px;
+      height: 100vh;
+      overflow: hidden;
+      overflow-x: hidden;
+      position: fixed;
+      top: 0;
+      left: 0;
+    }
+
+    canvas {
+      display: block;
+    }
+
+    .color {
+      display: inline-block;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      cursor: pointer;
+      margin: 10px;
+    }
+
+    .size {
+      background: #efefef;
+      display: inline-block;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      cursor: pointer;
+      margin: 10px;
+    }
+  </style>
+</head>
+
+<body>
+  <script src="index.js"></script>
+  <script>
+    setTimeout(() => {
+      let canvas = document.getElementsByTagName('canvas')[0];
+
+canvas.addEventListener("touchstart", function (e) {
+  mousePos = getTouchPos(canvas, e);
+  var touch = e.touches[0];
+  var mouseEvent = new MouseEvent("mousedown", {
+    clientX: touch.clientX,
+    clientY: touch.clientY
+  });
+  canvas.dispatchEvent(mouseEvent);
+}, false);
+canvas.addEventListener("touchend", function (e) {
+  var mouseEvent = new MouseEvent("mouseup", {});
+  canvas.dispatchEvent(mouseEvent);
+}, false);
+canvas.addEventListener("touchmove", function (e) {
+  var touch = e.touches[0];
+  var mouseEvent = new MouseEvent("mousemove", {
+    clientX: touch.clientX,
+    clientY: touch.clientY
+  });
+  canvas.dispatchEvent(mouseEvent);
+}, false);
+
+// Get the position of a touch relative to the canvas
+function getTouchPos(canvasDom, touchEvent) {
+  var rect = canvasDom.getBoundingClientRect();
+  return {
+    x: touchEvent.touches[0].clientX - rect.left,
+    y: touchEvent.touches[0].clientY - rect.top
+  };
+}
+    }, 100)
+  </script>
+</body>
+
 </html>

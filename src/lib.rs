@@ -3,7 +3,6 @@ use std::rc::Rc;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 
-
 // When the `wee_alloc` feature is enabled, this uses `wee_alloc` as the global
 // allocator.
 //
@@ -20,7 +19,6 @@ pub fn start() -> Result<(), JsValue> {
 
     let window = web_sys::window().expect("should have a window in this context");
     let document = window.document().expect("window should have a document");
-    
     let canvas = document
         .create_element("canvas")?
         .dyn_into::<web_sys::HtmlCanvasElement>()?;
@@ -42,7 +40,6 @@ pub fn start() -> Result<(), JsValue> {
     { mouse_down(&context, &pressed, &canvas); }
     { mouse_move(&context, &pressed, &canvas); }
     { mouse_up(&context, &pressed, &canvas); }
-    { touch_up(&context, &pressed, &canvas); }
 
     // Create divs for color picker
     for c in colors {
@@ -61,9 +58,8 @@ pub fn start() -> Result<(), JsValue> {
         let div = document
             .create_element("div")?
             .dyn_into::<web_sys::HtmlElement>()?;
-        
         {
-            clickSize(&context, &div, ss.clone());
+            click_size(&context, &div, ss.clone());
         }
         div.set_class_name("size");
         div.set_id(&ss.to_string());
@@ -73,6 +69,7 @@ pub fn start() -> Result<(), JsValue> {
 
     Ok(())
 }
+
 
 fn click(context: &std::rc::Rc<web_sys::CanvasRenderingContext2d>, div: &web_sys::HtmlElement, c: &str) {
     let context = context.clone();
@@ -84,7 +81,7 @@ fn click(context: &std::rc::Rc<web_sys::CanvasRenderingContext2d>, div: &web_sys
     div.set_onclick(Some(closure.as_ref().unchecked_ref()));
     closure.forget();
 }
-fn clickSize(context: &std::rc::Rc<web_sys::CanvasRenderingContext2d>, div: &web_sys::HtmlElement, c:f64) {
+fn click_size(context: &std::rc::Rc<web_sys::CanvasRenderingContext2d>, div: &web_sys::HtmlElement, c:f64) {
     let context = context.clone();
     let closure = Closure::wrap(Box::new(move || {
         context.set_line_width(c);
@@ -96,18 +93,7 @@ fn clickSize(context: &std::rc::Rc<web_sys::CanvasRenderingContext2d>, div: &web
     //http://bencentra.com/code/2014/12/05/html5-canvas-touch-events.html
     // fake events
     //
-fn touch_up(context: &std::rc::Rc<web_sys::CanvasRenderingContext2d>, pressed: &std::rc::Rc<std::cell::Cell<bool>>, canvas: &web_sys::HtmlCanvasElement) {
-    let context = context.clone();
-    let pressed = pressed.clone();
-    let closure = Closure::wrap(Box::new(move |event: web_sys::MouseEvent| {
-        pressed.set(false);
-        context.line_to(event.offset_x() as f64, event.offset_y() as f64);
-        context.stroke();
-    }) as Box<dyn FnMut(_)>);
-    canvas.add_event_listener_with_callback("touchend", closure.as_ref().unchecked_ref()).unwrap();
-    canvas.add_event_listener_with_callback("mouseup", closure.as_ref().unchecked_ref()).unwrap();
-    closure.forget();
-}
+
 fn mouse_up(context: &std::rc::Rc<web_sys::CanvasRenderingContext2d>, pressed: &std::rc::Rc<std::cell::Cell<bool>>, canvas: &web_sys::HtmlCanvasElement) {
     let context = context.clone();
     let pressed = pressed.clone();
@@ -148,6 +134,10 @@ fn mouse_down(context: &std::rc::Rc<web_sys::CanvasRenderingContext2d>, pressed:
         pressed.set(true);
     }) as Box<dyn FnMut(_)>);
     canvas.add_event_listener_with_callback("mousedown", closure.as_ref().unchecked_ref()).unwrap();
-    canvas.add_event_listener_with_callback("touchstart", closure.as_ref().unchecked_ref()).unwrap();
     closure.forget();
+}
+
+#[wasm_bindgen]
+extern "C" {
+    fn alert(s: web_sys::TouchList);
 }
